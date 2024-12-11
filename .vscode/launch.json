@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-Tutorial1Application<tutorial1>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.santanu.tutorial1.tutorial1.Tutorial1Application",
+            "projectName": "tutorial1",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
