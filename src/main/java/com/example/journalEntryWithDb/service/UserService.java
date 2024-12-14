@@ -1,0 +1,62 @@
+package com.example.journalEntryWithDb.service;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.example.journalEntryWithDb.entity.UserEntity;
+import com.example.journalEntryWithDb.repository.UserRepository;
+
+@Component
+public class UserService {
+    @Autowired
+    private UserRepository userRepository;
+
+    // Returns a list of All users
+    public List<UserEntity> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    // Find an user with username
+    public UserEntity findByUsername(String username){
+       return userRepository.findByUsername(username);
+    }
+
+    // Add an user
+    public Boolean addUser(UserEntity userEntity, String username){
+        // Find if the particular username already exists
+        UserEntity user = userRepository.findByUsername(username);
+
+        // Handle the case if the username already exists
+        if(user==null){
+            userRepository.save(userEntity);
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    // Update an user
+    public Boolean updateUser(UserEntity userEntity, String username) {
+        UserEntity user  = userRepository.findByUsername(username);
+        if(user!=null){
+            user.setUsername(userEntity.getUsername());
+            user.setPassword(userEntity.getPassword());
+            userRepository.save(user);
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    // Delete an user
+    public Boolean deleteUser(String username) {
+        UserEntity user  = userRepository.findByUsername(username);
+        if(user!=null){
+            userRepository.delete(user);
+            return true;
+        }
+        return false;
+    }
+}
