@@ -5,13 +5,18 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.example.journalEntryWithDb.entity.JournalDBEntity;
 import com.example.journalEntryWithDb.entity.UserEntity;
+import com.example.journalEntryWithDb.repository.JournalRepository;
 import com.example.journalEntryWithDb.repository.UserRepository;
 
 @Component
 public class UserService {
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private JournalRepository journalRepository;
 
     // Returns a list of All users
     public List<UserEntity> getAllUsers() {
@@ -38,8 +43,9 @@ public class UserService {
     }
 
     // Update an user
+    // overwriting the Journal data
     public Boolean updateUser(UserEntity userEntity, String username) {
-        UserEntity user  = userRepository.findByUsername(username);
+        UserEntity user = userRepository.findByUsername(username);
         if(user!=null){
             user.setUsername(userEntity.getUsername());
             user.setPassword(userEntity.getPassword());
@@ -50,10 +56,20 @@ public class UserService {
         }
     }
 
+    // Save an user with journal reference
+    public Boolean saveUserWithJournal(UserEntity user){
+        userRepository.save(user);
+        return true;
+    }
+
     // Delete an user
     public Boolean deleteUser(String username) {
         UserEntity user  = userRepository.findByUsername(username);
         if(user!=null){
+           
+            for(JournalDBEntity journal : user.getJournals()){
+                journalRepository.deleteById(journal.getId());
+            }
             userRepository.delete(user);
             return true;
         }

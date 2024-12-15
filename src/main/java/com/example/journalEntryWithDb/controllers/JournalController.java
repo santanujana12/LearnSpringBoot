@@ -80,4 +80,19 @@ public class JournalController {
             return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
+    // Insert into journal Db along with the reference in User collection
+    @PostMapping("/saveJournalWithUser/{username}")
+    public ResponseEntity<?>saveJournalWithUser(@RequestBody JournalDBEntity journalDBEntity, @PathVariable String username) throws Exception {
+        Boolean result = journalDbService.saveJournalWithUser(journalDBEntity, username);
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    // Delete the journal along with the reference in User collection
+    @DeleteMapping("/deleteJournalWithUser/{username}/{id}")
+    public ResponseEntity<?>deleteJournalInUser(@PathVariable String username, @PathVariable ObjectId id) throws Exception {
+        Boolean result = journalDbService.deleteJournalWithUser(id, username);
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
 }

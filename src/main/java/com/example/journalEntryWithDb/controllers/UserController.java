@@ -47,7 +47,7 @@ public class UserController {
     }
 
     // Delete an user
-    @GetMapping("/deleteUser/{username}")
+    @DeleteMapping("/deleteUser/{username}")
     public ResponseEntity<Boolean> deleteUser(@PathVariable String username) {
         Boolean isDeleted = userService.deleteUser(username);
         return new ResponseEntity<>(isDeleted ? true : false, isDeleted ? HttpStatus.OK : HttpStatus.NOT_FOUND);
