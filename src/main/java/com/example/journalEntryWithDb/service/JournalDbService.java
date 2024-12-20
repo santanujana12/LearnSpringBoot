@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.journalEntryWithDb.entity.JournalDBEntity;
 import com.example.journalEntryWithDb.entity.UserEntity;
@@ -64,34 +65,50 @@ public class JournalDbService {
     }
 
     // Insert into journal Db along with the reference in User collection
-    public Boolean saveJournalWithUser(JournalDBEntity journalDBEntity, String userName) {
-        UserEntity user = userService.findByUsername(userName);
-        if (user != null) {
-            JournalDBEntity journal = journalRepository.save(journalDBEntity);
-            user.getJournals().add(journal);
-            userService.saveUserWithJournal(user);
-            return true;
-        } 
-        return false;
+    // Make this transaction atomic that means if either of the operations fail
+    // journal/user then both should be rolled back
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean saveJournalWithUser(JournalDBEntity journalDBEntity, String userName) throws Exception {
+        try {
+            UserEntity user = userService.findByUsername(userName);
+            if (user != null) {
+                JournalDBEntity journal = journalRepository.save(journalDBEntity);
+                user.getJournals().add(journal);
+                userService.saveUserWithJournal(user);
+                return true;
+            } else {
+                throw new RuntimeException("User not found");
+            }
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
     }
 
-
     // Delete a journal along with the reference in User collection
-    public Boolean deleteJournalWithUser(ObjectId id, String userName) {
-        UserEntity user = userService.findByUsername(userName);
-    
-        if(user!=null){
-            journalRepository.deleteById(id);
-            user.getJournals().removeIf(journal->journal.getId().equals(id));
-            userService.saveUserWithJournal(user);    
-            return true;
+    // Make this transaction atomic that means if either of the operations fail
+    // journal/user then both should be rolled back
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean deleteJournalWithUser(ObjectId id, String userName) throws Exception {
+        try {
+            UserEntity user = userService.findByUsername(userName);
+
+            if (user != null) {
+                journalRepository.deleteById(id);
+                user.getJournals().removeIf(journal -> journal.getId().equals(id));
+                userService.saveUserWithJournal(user);
+                return true;
+            } else {
+                throw new RuntimeException("User not found");
+            }
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
         }
-        return false;
+
     }
 
     // Delete a full journal collection if user gets deleted
     public void deleteJournalOnUserDelete(List<JournalDBEntity> journals) {
         journals.forEach(journal -> journalRepository.deleteById(journal.getId()));
     }
-    
+
 }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.journalEntryWithDb.entity.JournalDBEntity;
 import com.example.journalEntryWithDb.entity.UserEntity;
@@ -63,6 +64,8 @@ public class UserService {
     }
 
     // Delete an user
+    // Make this transaction atomic that means if either of the operations fail journal/user then both should be rolled back
+    @Transactional
     public Boolean deleteUser(String username) {
         UserEntity user  = userRepository.findByUsername(username);
         if(user!=null){

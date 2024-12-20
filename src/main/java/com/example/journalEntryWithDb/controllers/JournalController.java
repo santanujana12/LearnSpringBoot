@@ -86,7 +86,7 @@ public class JournalController {
     @PostMapping("/saveJournalWithUser/{username}")
     public ResponseEntity<?>saveJournalWithUser(@RequestBody JournalDBEntity journalDBEntity, @PathVariable String username) throws Exception {
         Boolean result = journalDbService.saveJournalWithUser(journalDBEntity, username);
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        return new ResponseEntity<>(result==true? true : false, result==true? HttpStatus.CREATED : HttpStatus.NOT_ACCEPTABLE);
     }
 
     // Delete the journal along with the reference in User collection
